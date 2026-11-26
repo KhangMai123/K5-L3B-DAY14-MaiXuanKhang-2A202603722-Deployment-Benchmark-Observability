@@ -111,7 +111,7 @@ flowchart LR
 
 - **Đường đi request thực tế theo [docker-compose.yml](02-docker/production/docker-compose.yml) và [nginx.conf](02-docker/production/nginx/nginx.conf):**
   1. Client gọi vào cổng `80` (hoặc `443` nếu có cert) của `nginx` (service `agent` không publish port ra host, mọi traffic đều nằm trong Docker network `internal`).
-  2. `nginx` áp dụng rate limit `10r/s` (`burst=20 nodelay`, trả `429` JSON nếu vượt) và chèn security headers (`X-Frame-Options`, `X-Content-Type-Options`, ẩn `Server`), riêng `/health` bỏ rate limit và `access_log off`.
+  2. `nginx` áp dụng rate limit `10r/s` (`burst=20 nodelay`, trả `429` JSON nếu vượt) và thêm các header `X-Frame-Options` và `X-Content-Type-Options`. `server_tokens off` ẩn số phiên bản Nginx, nên phản hồi hiển thị `Server: nginx`. Riêng `/health` bỏ rate limit và tắt access log (`access_log off`).
   3. `nginx` forward qua `proxy_pass http://agent_backend` tới `agent:8000` (chỉ khởi động sau khi `redis` và `qdrant` đều đạt `condition: service_healthy`).
   4. `agent` dùng `REDIS_URL=redis://redis:6379/0` và `QDRANT_URL=http://qdrant:6333` để trao đổi nội bộ với `redis` và `qdrant`.
 - Compose nạp cấu hình ứng dụng từ `.env.local`. Tệp này thuộc cấu hình cục bộ và được Git bỏ qua.
