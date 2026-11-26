@@ -8,10 +8,15 @@ Mục tiêu: Tránh bill bất ngờ từ LLM API.
 
 Trong production: lưu trong Redis/DB, không phải in-memory.
 """
-import time
 import logging
+import os
+import time
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
+
+import redis
 from fastapi import HTTPException
+from redis.exceptions import RedisError
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +24,51 @@ logger = logging.getLogger(__name__)
 # Giá token (tham khảo, thay đổi theo model)
 PRICE_PER_1K_INPUT_TOKENS = 0.00015   # GPT-4o-mini: $0.15/1M input
 PRICE_PER_1K_OUTPUT_TOKENS = 0.0006   # GPT-4o-mini: $0.60/1M output
+
+MONTHLY_BUDGET_USD = 10
+_UNITS_PER_USD = 100_000_000
+_MONTH_TTL_SECONDS = 32 * 24 * 3600
+
+# So sánh và cập nhật trong cùng một thao tác để các worker dùng chung hạn mức.
+_UPDATE_MONTHLY_BUDGET = """
+local balance = tonumber(redis.call('GET', KEYS[1]) or '0')
+local next_balance = math.max(0, balance + tonumber(ARGV[1]))
+if next_balance > tonumber(ARGV[2]) then
+    return -1
+end
+redis.call('SET', KEYS[1], tostring(next_balance), 'EX', ARGV[3])
+return next_balance
+"""
+
+
+def cost_units(input_tokens: int, output_tokens: int) -> int:
+    usd = (input_tokens * PRICE_PER_1K_INPUT_TOKENS
+           + output_tokens * PRICE_PER_1K_OUTPUT_TOKENS) / 1000
+    return round(usd * _UNITS_PER_USD)
+
+
+class MonthlyCostGuard:
+    def __init__(self, url: str):
+        self.client = redis.Redis.from_url(url, socket_timeout=1, socket_connect_timeout=1)
+
+    def _adjust(self, key: str, delta: int) -> int:
+        limit = MONTHLY_BUDGET_USD * _UNITS_PER_USD
+        try:
+            balance = self.client.eval(_UPDATE_MONTHLY_BUDGET, 1, key, delta, limit, _MONTH_TTL_SECONDS)
+        except RedisError as exc:
+            raise HTTPException(503, "Budget backend unavailable") from exc
+        if balance == -1:
+            raise HTTPException(402, "Monthly budget exceeded")
+        return limit - balance
+
+    def reserve(self, user_id: str, units: int) -> str:
+        month = datetime.now(timezone.utc).strftime("%Y-%m")
+        key = f"budget:{user_id}:{month}"
+        self._adjust(key, units)
+        return key
+
+    def settle(self, key: str, reserved: int, actual: int) -> float:
+        return self._adjust(key, actual - reserved) / _UNITS_PER_USD
 
 
 @dataclass
@@ -126,3 +176,4 @@ class CostGuard:
 
 # Singleton
 cost_guard = CostGuard(daily_budget_usd=1.0, global_daily_budget_usd=10.0)
+monthly_cost_guard = MonthlyCostGuard(os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0"))

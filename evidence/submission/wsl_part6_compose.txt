@@ -1,0 +1,131 @@
+ Image k5-day14-final-agent Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 526B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.13kB 0.0s done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.11-slim
+#3 DONE 0.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 401B 0.0s done
+#4 DONE 0.0s
+
+#5 [builder 1/6] FROM docker.io/library/python:3.11-slim@sha256:61e01f72680f86a5279ad510818ab7b2ee9f049822589d4e34e33e044360356c
+#5 resolve docker.io/library/python:3.11-slim@sha256:61e01f72680f86a5279ad510818ab7b2ee9f049822589d4e34e33e044360356c 0.0s done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 826B 0.1s done
+#6 DONE 0.1s
+
+#7 [builder 6/6] RUN pip install --no-cache-dir --upgrade pip     && pip install --no-cache-dir -r requirements.txt
+#7 CACHED
+
+#8 [builder 2/6] WORKDIR /build
+#8 CACHED
+
+#9 [runtime 5/7] COPY app/ ./app/
+#9 CACHED
+
+#10 [runtime 6/7] COPY utils/ ./utils/
+#10 CACHED
+
+#11 [builder 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     gcc     && rm -rf /var/lib/apt/lists/*
+#11 CACHED
+
+#12 [runtime 3/7] WORKDIR /app
+#12 CACHED
+
+#13 [runtime 2/7] RUN groupadd -r appuser && useradd -r -g appuser -m -d /home/appuser appuser
+#13 CACHED
+
+#14 [builder 4/6] RUN python -m venv /opt/venv
+#14 CACHED
+
+#15 [builder 5/6] COPY requirements.txt .
+#15 CACHED
+
+#16 [runtime 4/7] COPY --from=builder /opt/venv /opt/venv
+#16 CACHED
+
+#17 [runtime 7/7] RUN chown -R appuser:appuser /app
+#17 CACHED
+
+#18 exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:5db5a8c2dc0d646f53d51186460416d44d7a3b2532bc1e97c447eb435bc8e394 done
+#18 exporting config sha256:146d5f4adcdf2447e57db5183876ba3fd0c30ed75247f3f83bc3dc2292d35fef done
+#18 exporting attestation manifest sha256:4b74795afdacb549b2b0495602b67093e1692c48da83c8170f1f0ef5e39f2ee3 0.0s done
+#18 exporting manifest list sha256:31da851bc0d0fc0e9dd251a50d70a8ae4b24d54a87dbe60abfa97cd8167fbe9b 0.0s done
+#18 naming to docker.io/library/k5-day14-final-agent:latest done
+#18 unpacking to docker.io/library/k5-day14-final-agent:latest done
+#18 DONE 0.1s
+
+#19 resolving provenance for metadata file
+#19 DONE 0.0s
+ Image k5-day14-final-agent Built 
+ Network k5-day14-final_agent_net Creating 
+ Network k5-day14-final_agent_net Created 
+ Container k5-day14-final-redis-1 Creating 
+ Container k5-day14-final-redis-1 Created 
+ Container k5-day14-final-agent-1 Creating 
+ Container k5-day14-final-agent-1 Created 
+ Container k5-day14-final-redis-1 Starting 
+ Container k5-day14-final-redis-1 Started 
+ Container k5-day14-final-redis-1 Waiting 
+ Container k5-day14-final-redis-1 Healthy 
+ Container k5-day14-final-agent-1 Starting 
+ Container k5-day14-final-agent-1 Started 
+ Container k5-day14-final-agent-1 Waiting 
+ Container k5-day14-final-redis-1 Waiting 
+ Container k5-day14-final-redis-1 Healthy 
+ Container k5-day14-final-agent-1 Healthy 
+NAME                     IMAGE                  COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+k5-day14-final-agent-1   k5-day14-final-agent   "sh -c 'exec uvicorn…"   agent     16 seconds ago   Up 5 seconds (healthy)    127.0.0.1:18006->18106/tcp
+k5-day14-final-redis-1   redis:7-alpine         "docker-entrypoint.s…"   redis     16 seconds ago   Up 16 seconds (healthy)   6379/tcp
+HTTP/1.1 200 OK
+date: Thu, 26 Nov 2026 02:23:18 GMT
+server: uvicorn
+content-length: 60
+content-type: application/json
+x-request-id: 79df25322c61
+
+{"status":"ok","environment":"staging","uptime_seconds":4.8}
+HTTP/1.1 200 OK
+date: Thu, 26 Nov 2026 02:23:18 GMT
+server: uvicorn
+content-length: 27
+content-type: application/json
+x-request-id: c41d00e53f4c
+
+{"ready":true,"redis":"ok"}
+HTTP/1.1 200 OK
+date: Thu, 26 Nov 2026 02:23:18 GMT
+server: uvicorn
+content-length: 244
+content-type: application/json
+x-request-id: dcda63685e2b
+
+{"question":"What is Docker?","answer":"Container là cách đóng gói app để chạy ở mọi nơi. Build once, run anywhere!","user_id":null,"usage":{"input_tokens":4,"output_tokens":19,"estimated_cost_usd":1.2e-05,"pricing_mode":"mock"}}
+PID 1 command: /opt/venv/bin/python /opt/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 18106 --workers 2 
+UID: 999
+ Container k5-day14-final-redis-1 Stopping 
+ Container k5-day14-final-redis-1 Stopped 
+Redis down: /ready=503 /health=200
+ Container k5-day14-final-redis-1 Starting 
+ Container k5-day14-final-redis-1 Started 
+{"ready":true,"redis":"ok"} after restoring Redis
+ Container k5-day14-final-agent-1 Stopping 
+ Container k5-day14-final-agent-1 Stopped 
+ Container k5-day14-final-agent-1 Removing 
+ Container k5-day14-final-agent-1 Removed 
+ Container k5-day14-final-redis-1 Stopping 
+ Container k5-day14-final-redis-1 Stopped 
+ Container k5-day14-final-redis-1 Removing 
+ Container k5-day14-final-redis-1 Removed 
+ Network k5-day14-final_agent_net Removing 
+ Network k5-day14-final_agent_net Removed 

@@ -1,0 +1,4 @@
+JWT absent: 401. Student at USD 10: 402.
+Another user: 200. Costs isolated by user and month. Budget key has TTL.
+Burst with student JWT: [200, 200, 200, 200, 200, 200, 200, 200, 429, 429, 429]
+Redis down: /ask 503.

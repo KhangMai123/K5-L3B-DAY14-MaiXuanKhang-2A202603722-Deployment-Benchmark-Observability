@@ -5,7 +5,7 @@ Kết hợp:
   ✅ JWT Authentication
   ✅ Role-based access (user / admin)
   ✅ Rate limiting (sliding window)
-  ✅ Cost guard (daily budget)
+  ✅ Cost guard (daily demo limits + monthly Redis budget)
   ✅ Input validation
   ✅ Security headers
 
@@ -37,19 +37,23 @@ import uvicorn
 
 from auth import verify_token, authenticate_user, create_token
 from rate_limiter import rate_limiter_user, rate_limiter_admin
-from cost_guard import cost_guard
-from utils.mock_llm import ask
+from cost_guard import cost_guard, cost_units, monthly_cost_guard
+from utils.mock_llm import MOCK_RESPONSES, ask
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 START_TIME = time.time()
+MAX_MOCK_OUTPUT_TOKENS = max(
+    len(answer.split()) * 2 for answers in MOCK_RESPONSES.values() for answer in answers
+)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Security layer initialized")
     yield
+    monthly_cost_guard.client.close()
     logger.info("Shutdown")
 
 
@@ -144,20 +148,25 @@ async def ask_agent(
     # ✅ Cost check trước khi gọi LLM
     cost_guard.check_budget(username)
 
-    # Gọi LLM (mock)
-    response_text = ask(body.question)
-
-    # ✅ Ghi nhận usage (mock token count)
     input_tokens = len(body.question.split()) * 2
+    reserved = cost_units(input_tokens, MAX_MOCK_OUTPUT_TOKENS)
+    period_key = monthly_cost_guard.reserve(username, reserved)
+    try:
+        response_text = ask(body.question)
+    except Exception:
+        monthly_cost_guard.settle(period_key, reserved, 0)
+        raise
+
     output_tokens = len(response_text.split()) * 2
-    usage = cost_guard.record_usage(username, input_tokens, output_tokens)
+    remaining = monthly_cost_guard.settle(period_key, reserved, cost_units(input_tokens, output_tokens))
+    cost_guard.record_usage(username, input_tokens, output_tokens)
 
     return {
         "question": body.question,
         "answer": response_text,
         "usage": {
             "requests_remaining": rate_info["remaining"],
-            "budget_remaining_usd": usage.total_cost_usd,
+            "budget_remaining_usd": remaining,
         },
     }
 

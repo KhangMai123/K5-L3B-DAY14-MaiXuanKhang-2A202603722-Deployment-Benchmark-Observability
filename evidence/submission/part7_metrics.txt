@@ -1,0 +1,119 @@
+=== PART 7 / EXERCISE 7.1 METRICS ===
+v1 /health (8001): {"status":"ok","agent_version":"v1","uptime_seconds":0.4}
+v2 /health (8002): {"status":"ok","agent_version":"v2","uptime_seconds":0.2}
+POST /ask (40 chars) -> 200: {"answer":"Prometheus pull metrics bằng cách scrape endpoint /metrics theo chu kỳ. Counter chỉ tăng (đếm request), Gauge lên xuống (request đang xử lý), Histogram chia latency vào các bucket để tính percentile bằng histogram_quantile.","model":"mock-llm-small","agent_version":"v2","usage":{"input_tokens":91,"output_tokens":55,"cost_usd":4.665e-05},"llm_latency_ms":150.0,"request_id":"30cf05f1228d"}
+POST /ask (49 chars) -> 200: {"answer":"Container đóng gói code cùng dependencies và runtime thành image chạy giống nhau ở mọi môi trường. Docker build image từ Dockerfile, chạy được ở laptop lẫn cloud.","model":"mock-llm-small","agent_version":"v2","usage":{"input_tokens":78,"output_tokens":40,"cost_usd":3.57e-05},"llm_latency_ms":190.1,"request_id":"ba36bddc0070"}
+GET /not-a-real-route -> 404
+
+--- GET http://localhost:8002/metrics ---
+# HELP python_gc_objects_collected_total Objects collected during gc
+# TYPE python_gc_objects_collected_total counter
+python_gc_objects_collected_total{generation="0"} 2192.0
+python_gc_objects_collected_total{generation="1"} 4734.0
+python_gc_objects_collected_total{generation="2"} 618.0
+# HELP python_gc_objects_uncollectable_total Uncollectable objects found during GC
+# TYPE python_gc_objects_uncollectable_total counter
+python_gc_objects_uncollectable_total{generation="0"} 0.0
+python_gc_objects_uncollectable_total{generation="1"} 0.0
+python_gc_objects_uncollectable_total{generation="2"} 0.0
+# HELP python_gc_collections_total Number of times this generation was collected
+# TYPE python_gc_collections_total counter
+python_gc_collections_total{generation="0"} 154.0
+python_gc_collections_total{generation="1"} 14.0
+python_gc_collections_total{generation="2"} 1.0
+# HELP python_info Python platform information
+# TYPE python_info gauge
+python_info{implementation="CPython",major="3",minor="11",patchlevel="18",version="3.11.18"} 1.0
+# HELP http_requests_total Tổng số HTTP request
+# TYPE http_requests_total counter
+http_requests_total{method="GET",route="/health",status="200"} 1.0
+http_requests_total{method="POST",route="/ask",status="200"} 2.0
+http_requests_total{method="GET",route="unmatched",status="404"} 1.0
+# HELP http_request_duration_seconds Thời gian xử lý HTTP request
+# TYPE http_request_duration_seconds histogram
+http_request_duration_seconds_bucket{le="0.05",method="GET",route="/health"} 1.0
+http_request_duration_seconds_bucket{le="0.1",method="GET",route="/health"} 1.0
+http_request_duration_seconds_bucket{le="0.2",method="GET",route="/health"} 1.0
+http_request_duration_seconds_bucket{le="0.3",method="GET",route="/health"} 1.0
+http_request_duration_seconds_bucket{le="0.5",method="GET",route="/health"} 1.0
+http_request_duration_seconds_bucket{le="0.75",method="GET",route="/health"} 1.0
+http_request_duration_seconds_bucket{le="1.0",method="GET",route="/health"} 1.0
+http_request_duration_seconds_bucket{le="1.5",method="GET",route="/health"} 1.0
+http_request_duration_seconds_bucket{le="2.0",method="GET",route="/health"} 1.0
+http_request_duration_seconds_bucket{le="3.0",method="GET",route="/health"} 1.0
+http_request_duration_seconds_bucket{le="5.0",method="GET",route="/health"} 1.0
+http_request_duration_seconds_bucket{le="+Inf",method="GET",route="/health"} 1.0
+http_request_duration_seconds_count{method="GET",route="/health"} 1.0
+http_request_duration_seconds_sum{method="GET",route="/health"} 0.001733799999783514
+http_request_duration_seconds_bucket{le="0.05",method="POST",route="/ask"} 0.0
+http_request_duration_seconds_bucket{le="0.1",method="POST",route="/ask"} 0.0
+http_request_duration_seconds_bucket{le="0.2",method="POST",route="/ask"} 1.0
+http_request_duration_seconds_bucket{le="0.3",method="POST",route="/ask"} 2.0
+http_request_duration_seconds_bucket{le="0.5",method="POST",route="/ask"} 2.0
+http_request_duration_seconds_bucket{le="0.75",method="POST",route="/ask"} 2.0
+http_request_duration_seconds_bucket{le="1.0",method="POST",route="/ask"} 2.0
+http_request_duration_seconds_bucket{le="1.5",method="POST",route="/ask"} 2.0
+http_request_duration_seconds_bucket{le="2.0",method="POST",route="/ask"} 2.0
+http_request_duration_seconds_bucket{le="3.0",method="POST",route="/ask"} 2.0
+http_request_duration_seconds_bucket{le="5.0",method="POST",route="/ask"} 2.0
+http_request_duration_seconds_bucket{le="+Inf",method="POST",route="/ask"} 2.0
+http_request_duration_seconds_count{method="POST",route="/ask"} 2.0
+http_request_duration_seconds_sum{method="POST",route="/ask"} 0.39676869999857445
+http_request_duration_seconds_bucket{le="0.05",method="GET",route="unmatched"} 1.0
+http_request_duration_seconds_bucket{le="0.1",method="GET",route="unmatched"} 1.0
+http_request_duration_seconds_bucket{le="0.2",method="GET",route="unmatched"} 1.0
+http_request_duration_seconds_bucket{le="0.3",method="GET",route="unmatched"} 1.0
+http_request_duration_seconds_bucket{le="0.5",method="GET",route="unmatched"} 1.0
+http_request_duration_seconds_bucket{le="0.75",method="GET",route="unmatched"} 1.0
+http_request_duration_seconds_bucket{le="1.0",method="GET",route="unmatched"} 1.0
+http_request_duration_seconds_bucket{le="1.5",method="GET",route="unmatched"} 1.0
+http_request_duration_seconds_bucket{le="2.0",method="GET",route="unmatched"} 1.0
+http_request_duration_seconds_bucket{le="3.0",method="GET",route="unmatched"} 1.0
+http_request_duration_seconds_bucket{le="5.0",method="GET",route="unmatched"} 1.0
+http_request_duration_seconds_bucket{le="+Inf",method="GET",route="unmatched"} 1.0
+http_request_duration_seconds_count{method="GET",route="unmatched"} 1.0
+http_request_duration_seconds_sum{method="GET",route="unmatched"} 0.0002671999991434859
+# HELP agent_in_flight_requests Số request đang xử lý
+# TYPE agent_in_flight_requests gauge
+agent_in_flight_requests 0.0
+# HELP llm_requests_total Số lần gọi LLM
+# TYPE llm_requests_total counter
+llm_requests_total{model="mock-llm-small",status="ok"} 2.0
+# HELP llm_request_duration_seconds Latency của LLM call
+# TYPE llm_request_duration_seconds histogram
+llm_request_duration_seconds_bucket{le="0.05",model="mock-llm-small"} 0.0
+llm_request_duration_seconds_bucket{le="0.1",model="mock-llm-small"} 0.0
+llm_request_duration_seconds_bucket{le="0.2",model="mock-llm-small"} 2.0
+llm_request_duration_seconds_bucket{le="0.3",model="mock-llm-small"} 2.0
+llm_request_duration_seconds_bucket{le="0.5",model="mock-llm-small"} 2.0
+llm_request_duration_seconds_bucket{le="0.75",model="mock-llm-small"} 2.0
+llm_request_duration_seconds_bucket{le="1.0",model="mock-llm-small"} 2.0
+llm_request_duration_seconds_bucket{le="1.5",model="mock-llm-small"} 2.0
+llm_request_duration_seconds_bucket{le="2.0",model="mock-llm-small"} 2.0
+llm_request_duration_seconds_bucket{le="3.0",model="mock-llm-small"} 2.0
+llm_request_duration_seconds_bucket{le="5.0",model="mock-llm-small"} 2.0
+llm_request_duration_seconds_bucket{le="+Inf",model="mock-llm-small"} 2.0
+llm_request_duration_seconds_count{model="mock-llm-small"} 2.0
+llm_request_duration_seconds_sum{model="mock-llm-small"} 0.3401745392682863
+# HELP llm_tokens_total Số token đã dùng
+# TYPE llm_tokens_total counter
+llm_tokens_total{model="mock-llm-small",type="input"} 169.0
+llm_tokens_total{model="mock-llm-small",type="output"} 95.0
+# HELP llm_cost_usd_total Tổng chi phí LLM (USD)
+# TYPE llm_cost_usd_total counter
+llm_cost_usd_total{model="mock-llm-small"} 8.235e-05
+# HELP agent_info Thông tin phiên bản agent (luôn = 1)
+# TYPE agent_info gauge
+agent_info{model="mock-llm-small",version="v2"} 1.0
+# HELP agent_question_length_chars Độ dài câu hỏi (ký tự)
+# TYPE agent_question_length_chars histogram
+agent_question_length_chars_bucket{le="20.0"} 0.0
+agent_question_length_chars_bucket{le="50.0"} 2.0
+agent_question_length_chars_bucket{le="100.0"} 2.0
+agent_question_length_chars_bucket{le="200.0"} 2.0
+agent_question_length_chars_bucket{le="500.0"} 2.0
+agent_question_length_chars_bucket{le="1000.0"} 2.0
+agent_question_length_chars_bucket{le="2000.0"} 2.0
+agent_question_length_chars_bucket{le="+Inf"} 2.0
+agent_question_length_chars_count 2.0
+agent_question_length_chars_sum 89.0

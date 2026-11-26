@@ -20,7 +20,6 @@ Simulate shutdown:
 """
 import os
 import time
-import signal
 import logging
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
@@ -172,19 +171,7 @@ def ready():
 # GRACEFUL SHUTDOWN
 # ──────────────────────────────────────────────────────────
 
-def handle_sigterm(signum, frame):
-    """
-    SIGTERM là signal platform gửi khi muốn dừng container.
-    Khác với SIGKILL (không thể catch được).
-
-    uvicorn bắt SIGTERM tự động và gọi lifespan shutdown.
-    Hàm này để log thêm thông tin.
-    """
-    logger.info(f"Received signal {signum} — uvicorn will handle graceful shutdown")
-
-
-signal.signal(signal.SIGTERM, handle_sigterm)
-signal.signal(signal.SIGINT, handle_sigterm)
+# Uvicorn handles SIGTERM and SIGINT and runs lifespan shutdown after active requests finish.
 
 
 if __name__ == "__main__":

@@ -1,0 +1,2 @@
+Startup without Redis: /health 200, /ready 503.
+Same process recovered when Redis started. Concurrent requests preserved turns 1–12 and 20 latest messages in Redis.

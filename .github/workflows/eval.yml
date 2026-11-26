@@ -1,0 +1,74 @@
+name: Agent Quality Gate (Eval)
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  eval-quality-gate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 06-lab-complete/benchmark-observability/develop
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install benchmark/eval dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Start agent v2 (fault injection disabled for deterministic CI eval) and run quality gate
+        env:
+          AGENT_VERSION: v2
+          PORT: "8000"
+          MOCK_ERROR_RATE: "0"
+          MOCK_SLOW_RATE: "0"
+        run: |
+          set -euo pipefail
+          python app.py > /tmp/agent-ci.log 2>&1 &
+          AGENT_PID=$!
+          cleanup() {
+            kill -TERM "$AGENT_PID" 2>/dev/null || true
+            wait "$AGENT_PID" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+
+          READY=0
+          for _ in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8000/health >/dev/null 2>&1; then
+              READY=1
+              break
+            fi
+            sleep 0.5
+          done
+
+          if [ "$READY" -ne 1 ]; then
+            echo "Agent failed to become healthy within 20s"
+            cat /tmp/agent-ci.log
+            exit 1
+          fi
+
+          mkdir -p reports
+          set +e
+          python eval/run_eval.py \
+            --url http://localhost:8000 \
+            --min-accuracy 0.85 \
+            --baseline ../../../reports/eval_v2_fixed.json \
+            --out reports/ci_eval.json
+          EVAL_EXIT=$?
+          set -e
+
+          if [ "$EVAL_EXIT" -ne 0 ]; then
+            echo "Quality gate failed (exit=$EVAL_EXIT)"
+            cat /tmp/agent-ci.log
+          fi
+          exit "$EVAL_EXIT"

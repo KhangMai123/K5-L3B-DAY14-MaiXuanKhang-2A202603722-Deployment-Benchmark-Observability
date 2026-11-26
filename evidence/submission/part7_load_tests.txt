@@ -1,0 +1,138 @@
+=== PART 7 / EXERCISE 7.2 SEQUENTIAL LOAD TESTS ===
+CWD: .\06-lab-complete\benchmark-observability\develop
+OS: Windows 11 (os.name='nt'), Python 3.11.18
+Base mock config: AGENT_VERSION=v2 PORT=8002 MOCK_LATENCY_MS=120 MOCK_JITTER_MS=60 MOCK_SLOW_MS=1500 MOCK_ERROR_RATE=0.01
+
+--- Concurrency sweep started; health={"status":"ok","agent_version":"v2","uptime_seconds":0.2} ---
+CMD: python load_test.py --url http://localhost:8002 --requests 300 --concurrency 1 --out reports/load_v2_c1.json
+HEALTH_BEFORE: {"status":"ok","agent_version":"v2","uptime_seconds":0.2} | EXIT_CODE: 0
+════════════════════════════════════════════════════════
+  LOAD TEST REPORT — http://localhost:8002
+════════════════════════════════════════════════════════
+  Requests     : 300  (concurrency=1)
+  Duration     : 70.52 s
+  Throughput   : 4.25 req/s
+  Error rate   : 0.67%   {'200': 298, '503': 2}
+  Total cost   : $0.010307
+  Latency (ms) : min=138.4  avg=235.9  max=1739.0
+                 p50=202.6  p90=231.6  p95=233.7  p99=1697.7
+────────────────────────────────────────────────────────
+  SLO p95 ≤ 500ms        : ✅ PASS
+  SLO error rate ≤ 2.0%  : ✅ PASS
+════════════════════════════════════════════════════════
+
+💾 Đã lưu report: reports/load_v2_c1.json
+CMD: python load_test.py --url http://localhost:8002 --requests 300 --concurrency 10 --out reports/load_v2_c10.json
+HEALTH_BEFORE: {"status":"ok","agent_version":"v2","uptime_seconds":72.7} | EXIT_CODE: 0
+════════════════════════════════════════════════════════
+  LOAD TEST REPORT — http://localhost:8002
+════════════════════════════════════════════════════════
+  Requests     : 300  (concurrency=10)
+  Duration     : 8.5 s
+  Throughput   : 35.31 req/s
+  Error rate   : 1.33%   {'200': 296, '503': 4}
+  Total cost   : $0.010098
+  Latency (ms) : min=124.4  avg=255.0  max=1928.9
+                 p50=198.8  p90=234.1  p95=438.4  p99=1711.0
+────────────────────────────────────────────────────────
+  SLO p95 ≤ 500ms        : ✅ PASS
+  SLO error rate ≤ 2.0%  : ✅ PASS
+════════════════════════════════════════════════════════
+
+💾 Đã lưu report: reports/load_v2_c10.json
+CMD: python load_test.py --url http://localhost:8002 --requests 300 --concurrency 50 --out reports/load_v2_c50.json
+HEALTH_BEFORE: {"status":"ok","agent_version":"v2","uptime_seconds":82.1} | EXIT_CODE: 1
+════════════════════════════════════════════════════════
+  LOAD TEST REPORT — http://localhost:8002
+════════════════════════════════════════════════════════
+  Requests     : 300  (concurrency=50)
+  Duration     : 3.33 s
+  Throughput   : 90.0 req/s
+  Error rate   : 0.67%   {'200': 298, '503': 2}
+  Total cost   : $0.010213
+  Latency (ms) : min=124.3  avg=329.5  max=2022.6
+                 p50=207.9  p90=504.5  p95=1666.0  p99=1751.1
+────────────────────────────────────────────────────────
+  SLO p95 ≤ 500ms        : ❌ FAIL
+  SLO error rate ≤ 2.0%  : ✅ PASS
+════════════════════════════════════════════════════════
+
+💾 Đã lưu report: reports/load_v2_c50.json
+CMD: python load_test.py --url http://localhost:8002 --requests 300 --concurrency 100 --out reports/load_v2_c100.json
+HEALTH_BEFORE: {"status":"ok","agent_version":"v2","uptime_seconds":86.5} | EXIT_CODE: 1
+════════════════════════════════════════════════════════
+  LOAD TEST REPORT — http://localhost:8002
+════════════════════════════════════════════════════════
+  Requests     : 300  (concurrency=100)
+  Duration     : 7.58 s
+  Throughput   : 39.56 req/s
+  Error rate   : 0.67%   {'200': 298, '503': 2}
+  Total cost   : $0.010157
+  Latency (ms) : min=198.1  avg=1727.6  max=6858.6
+                 p50=790.3  p90=4272.9  p95=5017.5  p99=5560.4
+────────────────────────────────────────────────────────
+  SLO p95 ≤ 500ms        : ❌ FAIL
+  SLO error rate ≤ 2.0%  : ✅ PASS
+════════════════════════════════════════════════════════
+
+💾 Đã lưu report: reports/load_v2_c100.json
+
+--- MOCK_SLOW_RATE=0 (fresh restart, health={"status":"ok","agent_version":"v2","uptime_seconds":0.2}) ---
+CMD: python load_test.py --url http://localhost:8002 --requests 300 --concurrency 20 --out reports/load_v2_slow_0.json
+EXIT_CODE: 0
+════════════════════════════════════════════════════════
+  LOAD TEST REPORT — http://localhost:8002
+════════════════════════════════════════════════════════
+  Requests     : 300  (concurrency=20)
+  Duration     : 3.23 s
+  Throughput   : 92.87 req/s
+  Error rate   : 1.33%   {'200': 296, '503': 4}
+  Total cost   : $0.010022
+  Latency (ms) : min=124.6  avg=209.0  max=494.8
+                 p50=191.4  p90=224.2  p95=430.6  p99=493.3
+────────────────────────────────────────────────────────
+  SLO p95 ≤ 500ms        : ✅ PASS
+  SLO error rate ≤ 2.0%  : ✅ PASS
+════════════════════════════════════════════════════════
+
+💾 Đã lưu report: reports/load_v2_slow_0.json
+
+--- MOCK_SLOW_RATE=0.03 (fresh restart, health={"status":"ok","agent_version":"v2","uptime_seconds":0.2}) ---
+CMD: python load_test.py --url http://localhost:8002 --requests 300 --concurrency 20 --out reports/load_v2_slow_0.03.json
+EXIT_CODE: 0
+════════════════════════════════════════════════════════
+  LOAD TEST REPORT — http://localhost:8002
+════════════════════════════════════════════════════════
+  Requests     : 300  (concurrency=20)
+  Duration     : 4.53 s
+  Throughput   : 66.16 req/s
+  Error rate   : 0.67%   {'200': 298, '503': 2}
+  Total cost   : $0.010185
+  Latency (ms) : min=122.3  avg=245.0  max=2019.9
+                 p50=191.1  p90=231.5  p95=467.8  p99=1703.6
+────────────────────────────────────────────────────────
+  SLO p95 ≤ 500ms        : ✅ PASS
+  SLO error rate ≤ 2.0%  : ✅ PASS
+════════════════════════════════════════════════════════
+
+💾 Đã lưu report: reports/load_v2_slow_0.03.json
+
+--- MOCK_SLOW_RATE=0.1 (fresh restart, health={"status":"ok","agent_version":"v2","uptime_seconds":0.2}) ---
+CMD: python load_test.py --url http://localhost:8002 --requests 300 --concurrency 20 --out reports/load_v2_slow_0.1.json
+EXIT_CODE: 1
+════════════════════════════════════════════════════════
+  LOAD TEST REPORT — http://localhost:8002
+════════════════════════════════════════════════════════
+  Requests     : 300  (concurrency=20)
+  Duration     : 6.5 s
+  Throughput   : 46.14 req/s
+  Error rate   : 0.67%   {'200': 298, '503': 2}
+  Total cost   : $0.0102
+  Latency (ms) : min=124.2  avg=382.2  max=1995.8
+                 p50=202.1  p90=1665.8  p95=1694.0  p99=1736.1
+────────────────────────────────────────────────────────
+  SLO p95 ≤ 500ms        : ❌ FAIL
+  SLO error rate ≤ 2.0%  : ✅ PASS
+════════════════════════════════════════════════════════
+
+💾 Đã lưu report: reports/load_v2_slow_0.1.json

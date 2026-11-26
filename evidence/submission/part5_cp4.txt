@@ -1,0 +1,43 @@
+=== PART 5 / CP4 DEVELOP DEMO EXECUTION ===
+
+--- 5.1 develop/app.py (cwd=.\05-scaling-reliability\develop, startup /ready -> 200) ---
+CMD (GET /health, exit=0):
+HTTP/1.1 200 OK
+date: Wed, 25 Nov 2026 16:14:32 GMT
+server: uvicorn
+content-length: 185
+content-type: application/json
+
+{"status":"ok","uptime_seconds":0.4,"version":"1.0.0","environment":"development","timestamp":"2026-11-25T16:14:32.270392+00:00","checks":{"memory":{"status":"ok","used_percent":70.2}}}
+
+CMD (GET /ready, exit=0):
+HTTP/1.1 200 OK
+date: Wed, 25 Nov 2026 16:14:32 GMT
+server: uvicorn
+content-length: 37
+content-type: application/json
+
+{"ready":true,"in_flight_requests":1}
+
+CMD (POST /ask?question=Hello, exit=0):
+HTTP/1.1 200 OK
+date: Wed, 25 Nov 2026 16:14:32 GMT
+server: uvicorn
+content-length: 103
+content-type: application/json
+
+{"answer":"Tôi là AI agent được deploy lên cloud. Câu hỏi của bạn đã được nhận."}
+
+develop stdout/stderr:
+2026-11-25 23:14:31,796 INFO Starting agent on port 8000
+INFO:     Started server process [2852]
+INFO:     Waiting for application startup.
+2026-11-25 23:14:31,850 INFO Agent starting up...
+2026-11-25 23:14:31,850 INFO Loading model and checking dependencies...
+2026-11-25 23:14:32,051 INFO ✅ Agent is ready!
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:51931 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51935 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51937 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51939 - "POST /ask?question=Hello HTTP/1.1" 200 OK

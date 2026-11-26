@@ -1,7 +1,6 @@
 # Part 6 — Final Project: Production-ready AI Agent
 
-Bạn tự xây một AI agent đủ chuẩn production từ **bản khung** trong thư mục này, kết hợp mọi thứ đã học ở Part 1–5.
-Mọi file đều đã có sẵn, phần việc của bạn nằm ở các chỗ ghi `TODO`. Bản khung chạy được nhưng **chưa đạt tiêu chí nào**.
+Agent kết hợp API key, rate limit và ngân sách qua Redis, health/readiness, log JSON và shutdown bằng Uvicorn. [Checklist đã chạy](../MISSION_ANSWERS.md#part-6-kết-quả-kiểm-chứng-local) có kết quả bản đầy đủ trên WSL 2.
 
 Bài chỉ được tính hoàn thành khi script chấm báo **`PASS 12/12`**:
 
@@ -52,7 +51,7 @@ Script tự khởi động agent của bạn, gọi API thật, build và chạy
 
 ---
 
-## Bản khung
+## Bản khung ban đầu
 
 ```
 06-lab-complete/
@@ -82,19 +81,19 @@ Script tự khởi động agent của bạn, gọi API thật, build và chạy
 ## Chạy local
 
 ```bash
-pip install -r requirements.txt
-cp .env.example .env
+# Chạy từ thư mục 06-lab-complete/, với Docker đang hoạt động.
+export AGENT_API_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(24))')"
+export AGENT_HOST_PORTS=127.0.0.1:8000
+docker compose -p k5-day14-final up -d --build --wait
 
-# Chạy nhanh không cần Docker (cần Redis riêng nếu muốn test rate limit thật)
-AGENT_API_KEY=dev-key uvicorn app.main:app --reload
-
-# Chạy cả agent + redis
-docker compose up --build
-
-curl http://localhost:8000/health
-curl -X POST http://localhost:8000/ask \
-     -H "X-API-Key: dev-key" -H "Content-Type: application/json" \
+curl -fsS http://127.0.0.1:8000/health
+curl -fsS http://127.0.0.1:8000/ready
+curl -fsS -X POST http://127.0.0.1:8000/ask \
+     -H "X-API-Key: $AGENT_API_KEY" -H "Content-Type: application/json" \
      -d '{"question": "What is deployment?"}'
+
+docker compose -p k5-day14-final down
+unset AGENT_API_KEY AGENT_HOST_PORTS
 ```
 
 ---

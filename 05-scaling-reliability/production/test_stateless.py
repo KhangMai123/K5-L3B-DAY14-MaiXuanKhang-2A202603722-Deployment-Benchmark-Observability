@@ -11,10 +11,11 @@ Chạy sau khi docker compose up:
     python test_stateless.py
 """
 import json
+import os
 import urllib.request
 import urllib.error
 
-BASE_URL = "http://localhost:8080"
+BASE_URL = os.getenv("LAB14_SCALING_URL", "http://localhost:8080")
 session_id = None
 
 
@@ -53,6 +54,8 @@ for i, question in enumerate(questions, 1):
         "question": question,
         "session_id": session_id,
     })
+    assert result["turn"] == i, f"Expected turn {i}, got {result['turn']}"
+    assert result["storage"] == "redis"
 
     if session_id is None:
         session_id = result["session_id"]
@@ -75,6 +78,7 @@ print(f"✅ All requests served despite different instances!" if len(instances_s
 # Verify history is intact
 print("\n--- Conversation History ---")
 history = get(f"/chat/{session_id}/history")
+assert history["count"] == 2 * len(questions)
 print(f"Total messages: {history['count']}")
 for msg in history["messages"]:
     print(f"  [{msg['role']}]: {msg['content'][:60]}...")

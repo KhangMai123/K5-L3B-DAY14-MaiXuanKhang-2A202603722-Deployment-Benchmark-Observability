@@ -1,0 +1,48 @@
+{
+  "changed_at_utc": "2026-11-26T02:17:21.779921+00:00",
+  "observed_at_utc": "2026-11-26T02:19:43.023060+00:00",
+  "expected": {
+    "AgentHighErrorRate": {
+      "observed_after_s": 81.2,
+      "pending_since": "2026-11-26T02:17:42.401817116Z",
+      "value": "1.725e-01"
+    },
+    "AgentHighLatencyP95": {
+      "observed_after_s": 141.2,
+      "pending_since": "2026-11-26T02:17:42.401817116Z",
+      "value": "1.885180412371134e+00"
+    }
+  },
+  "simultaneous_firing": [
+    "AgentHighErrorRate",
+    "AgentHighLatencyP95"
+  ],
+  "alerts": [
+    {
+      "labels": {
+        "alertname": "AgentHighErrorRate",
+        "severity": "critical"
+      },
+      "annotations": {
+        "description": "Error rate hiện tại: 19.19% (SLO: < 5%)",
+        "summary": "Error rate /ask vượt 5%"
+      },
+      "state": "firing",
+      "activeAt": "2026-11-26T02:17:42.401817116Z",
+      "value": "1.919191919191919e-01"
+    },
+    {
+      "labels": {
+        "alertname": "AgentHighLatencyP95",
+        "severity": "warning"
+      },
+      "annotations": {
+        "description": "p95 hiện tại: 1.885s (SLO: < 1s)",
+        "summary": "p95 latency /ask vượt 1 giây"
+      },
+      "state": "firing",
+      "activeAt": "2026-11-26T02:17:42.401817116Z",
+      "value": "1.885180412371134e+00"
+    }
+  ]
+}

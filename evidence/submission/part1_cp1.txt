@@ -1,0 +1,74 @@
+=== PART 1 / CP1 LIVE EXECUTION ===
+
+--- 1.1 develop/app.py (cwd=.\01-localhost-vs-production\develop, startup GET / -> 200) ---
+CMD: curl -i -X POST "http://localhost:8000/ask?question=Hello" (exit=0)
+HTTP/1.1 200 OK
+date: Wed, 25 Nov 2026 16:14:08 GMT
+server: uvicorn
+content-length: 95
+content-type: application/json
+
+{"answer":"Agent đang hoạt động tốt! (mock response) Hỏi thêm câu hỏi đi nhé."}
+
+CMD: curl -i -X POST http://localhost:8000/ask -H Content-Type:application/json -d '{"question":"Hello"}' (exit=0)
+HTTP/1.1 422 Unprocessable Entity
+date: Wed, 25 Nov 2026 16:14:08 GMT
+server: uvicorn
+content-length: 94
+content-type: application/json
+
+{"detail":[{"type":"missing","loc":["query","question"],"msg":"Field required","input":null}]}
+
+develop stdout/stderr:
+Starting agent on localhost:8000...
+INFO:     Will watch for changes in these directories: ['.\\01-localhost-vs-production\\develop']
+INFO:     Uvicorn running on http://localhost:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [35108] using WatchFiles
+INFO:     Started server process [30360]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:54709 - "GET / HTTP/1.1" 200 OK
+[DEBUG] Got question: Hello
+[DEBUG] Using key: <DEMO_KEY_REDACTED>
+[DEBUG] Response: Agent đang hoạt động tốt! (mock response) Hỏi thêm câu hỏi đi nhé.
+INFO:     127.0.0.1:54715 - "POST /ask?question=Hello HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54717 - "POST /ask HTTP/1.1" 422 Unprocessable Entity
+
+--- 1.2 production/app.py (cwd=.\01-localhost-vs-production\production, ENVIRONMENT=staging, startup /health -> 200) ---
+CMD (GET /health, exit=0):
+HTTP/1.1 200 OK
+date: Wed, 25 Nov 2026 16:14:11 GMT
+server: uvicorn
+content-length: 125
+content-type: application/json
+
+{"status":"ok","uptime_seconds":0.4,"version":"1.0.0","environment":"staging","timestamp":"2026-11-25T16:14:11.940611+00:00"}
+
+CMD (GET /ready, exit=0):
+HTTP/1.1 200 OK
+date: Wed, 25 Nov 2026 16:14:11 GMT
+server: uvicorn
+content-length: 14
+content-type: application/json
+
+{"ready":true}
+
+CMD (POST /ask JSON, exit=0):
+HTTP/1.1 200 OK
+date: Wed, 25 Nov 2026 16:14:11 GMT
+server: uvicorn
+content-length: 167
+content-type: application/json
+
+{"question":"Hello","answer":"Đây là câu trả lời từ AI agent (mock). Trong production, đây sẽ là response từ OpenAI/Anthropic.","model":"gpt-4o-mini"}
+
+production stdout/stderr:
+WARNING:root:OPENAI_API_KEY not set — using mock LLM
+INFO:     Started server process [35396]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:54720 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54724 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54726 - "GET /ready HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54728 - "POST /ask HTTP/1.1" 200 OK

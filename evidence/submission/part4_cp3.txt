@@ -1,0 +1,203 @@
+=== PART 4 / CP3 LIVE EXECUTION ===
+
+--- 4.1 develop/app.py (cwd=.\04-api-gateway\develop, AGENT_API_KEY=<REDACTED_DEMO_KEY>, /health -> 200) ---
+CASE (No key -> expect 401, exit=0):
+HTTP/1.1 401 Unauthorized
+date: Wed, 25 Nov 2026 16:14:17 GMT
+server: uvicorn
+content-length: 67
+content-type: application/json
+
+{"detail":"Missing API key. Include header: X-API-Key: <your-key>"}
+
+CASE (Wrong key -> expect 403, exit=0):
+HTTP/1.1 403 Forbidden
+date: Wed, 25 Nov 2026 16:14:17 GMT
+server: uvicorn
+content-length: 29
+content-type: application/json
+
+{"detail":"Invalid API key."}
+
+CASE (Valid key -> expect 200, exit=0):
+HTTP/1.1 200 OK
+date: Wed, 25 Nov 2026 16:14:17 GMT
+server: uvicorn
+content-length: 145
+content-type: application/json
+
+{"question":"Hello","answer":"Đây là câu trả lời từ AI agent (mock). Trong production, đây sẽ là response từ OpenAI/Anthropic."}
+
+develop stdout/stderr (key masked):
+API Key: <REDACTED_KEY>
+Test: curl -H 'X-API-Key: <REDACTED_KEY>' http://localhost:8000/ask?question=hello
+INFO:     Will watch for changes in these directories: ['.\\04-api-gateway\\develop']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [32840] using WatchFiles
+INFO:     Started server process [13060]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:54735 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54739 - "POST /ask HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54741 - "POST /ask HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:54743 - "POST /ask HTTP/1.1" 200 OK
+
+--- 4.2 & 4.3 production/app.py (cwd=.\04-api-gateway\production, /health -> 200) ---
+CASE (No Bearer token -> expect 401, exit=0):
+HTTP/1.1 401 Unauthorized
+date: Wed, 25 Nov 2026 16:14:25 GMT
+server: uvicorn
+www-authenticate: Bearer
+content-length: 76
+content-type: application/json
+vary: Origin
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: strict-origin-when-cross-origin
+
+{"detail":"Authentication required. Include: Authorization: Bearer <token>"}
+
+CASE (Invalid Bearer token -> expect 403, exit=0):
+HTTP/1.1 403 Forbidden
+date: Wed, 25 Nov 2026 16:14:25 GMT
+server: uvicorn
+content-length: 27
+content-type: application/json
+vary: Origin
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: strict-origin-when-cross-origin
+
+{"detail":"Invalid token."}
+
+CASE (POST /auth/token student/demo123, exit=0):
+HTTP/1.1 200 OK
+date: Wed, 25 Nov 2026 16:14:25 GMT
+server: uvicorn
+content-length: 307
+content-type: application/json
+vary: Origin
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: strict-origin-when-cross-origin
+
+{"access_token":"<REDACTED_JWT_TOKEN>","token_type":"bearer","expires_in_minutes":60,"hint":"Include in header: Authorization: Bearer <REDACTED_PREFIX>..."}
+
+CASE (Burst 12 requests with student Bearer token, limit=10/min):
+[Request 1] (exit=0):
+HTTP/1.1 200 OK
+date: Wed, 25 Nov 2026 16:14:25 GMT
+server: uvicorn
+content-length: 179
+content-type: application/json
+vary: Origin
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: strict-origin-when-cross-origin
+
+{"question":"Test 1","answer":"Agent đang hoạt động tốt! (mock response) Hỏi thêm câu hỏi đi nhé.","usage":{"requests_remaining":9,"budget_remaining_usd":1.6e-05}}
+
+[Request 2] (exit=0): HTTP/1.1 200 OK
+[Request 3] (exit=0): HTTP/1.1 200 OK
+[Request 4] (exit=0): HTTP/1.1 200 OK
+[Request 5] (exit=0): HTTP/1.1 200 OK
+[Request 6] (exit=0): HTTP/1.1 200 OK
+[Request 7] (exit=0): HTTP/1.1 200 OK
+[Request 8] (exit=0): HTTP/1.1 200 OK
+[Request 9] (exit=0): HTTP/1.1 200 OK
+[Request 10] (exit=0):
+HTTP/1.1 200 OK
+date: Wed, 25 Nov 2026 16:14:26 GMT
+server: uvicorn
+content-length: 189
+content-type: application/json
+vary: Origin
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: strict-origin-when-cross-origin
+
+{"question":"Test 10","answer":"Tôi là AI agent được deploy lên cloud. Câu hỏi của bạn đã được nhận.","usage":{"requests_remaining":0,"budget_remaining_usd":0.000179}}
+
+[Request 11] (exit=0):
+HTTP/1.1 429 Too Many Requests
+date: Wed, 25 Nov 2026 16:14:26 GMT
+server: uvicorn
+x-ratelimit-limit: 10
+x-ratelimit-remaining: 0
+x-ratelimit-reset: 1795623326
+retry-after: 59
+content-length: 98
+content-type: application/json
+vary: Origin
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: strict-origin-when-cross-origin
+
+{"detail":{"error":"Rate limit exceeded","limit":10,"window_seconds":60,"retry_after_seconds":59}}
+
+[Request 12] (exit=0):
+HTTP/1.1 429 Too Many Requests
+date: Wed, 25 Nov 2026 16:14:26 GMT
+server: uvicorn
+x-ratelimit-limit: 10
+x-ratelimit-remaining: 0
+x-ratelimit-reset: 1795623326
+retry-after: 59
+content-length: 98
+content-type: application/json
+vary: Origin
+x-content-type-options: nosniff
+x-frame-options: DENY
+x-xss-protection: 1; mode=block
+referrer-policy: strict-origin-when-cross-origin
+
+{"detail":{"error":"Rate limit exceeded","limit":10,"window_seconds":60,"retry_after_seconds":59}}
+
+production stdout/stderr:
+=== Demo credentials ===
+  student / demo123  (10 req/min, $1/day budget)
+  teacher / teach456 (100 req/min, $1/day budget)
+
+Docs: http://localhost:8000/docs
+
+INFO:     Will watch for changes in these directories: ['.\\04-api-gateway\\production']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [24540] using WatchFiles
+INFO:watchfiles.main:1 change detected
+INFO:     Started server process [31396]
+INFO:     Waiting for application startup.
+INFO:app:Security layer initialized
+INFO:     Application startup complete.
+INFO:watchfiles.main:4 changes detected
+INFO:     127.0.0.1:51896 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51898 - "POST /ask HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51900 - "POST /ask HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:51903 - "POST /auth/token HTTP/1.1" 200 OK
+INFO:cost_guard:Usage: user=student req=1 cost=$0.0000/1.0
+INFO:     127.0.0.1:51905 - "POST /ask HTTP/1.1" 200 OK
+INFO:cost_guard:Usage: user=student req=2 cost=$0.0000/1.0
+INFO:     127.0.0.1:51907 - "POST /ask HTTP/1.1" 200 OK
+INFO:cost_guard:Usage: user=student req=3 cost=$0.0001/1.0
+INFO:     127.0.0.1:51909 - "POST /ask HTTP/1.1" 200 OK
+INFO:cost_guard:Usage: user=student req=4 cost=$0.0001/1.0
+INFO:     127.0.0.1:51911 - "POST /ask HTTP/1.1" 200 OK
+INFO:cost_guard:Usage: user=student req=5 cost=$0.0001/1.0
+INFO:     127.0.0.1:51913 - "POST /ask HTTP/1.1" 200 OK
+INFO:cost_guard:Usage: user=student req=6 cost=$0.0001/1.0
+INFO:     127.0.0.1:51915 - "POST /ask HTTP/1.1" 200 OK
+INFO:cost_guard:Usage: user=student req=7 cost=$0.0001/1.0
+INFO:     127.0.0.1:51917 - "POST /ask HTTP/1.1" 200 OK
+INFO:cost_guard:Usage: user=student req=8 cost=$0.0001/1.0
+INFO:     127.0.0.1:51919 - "POST /ask HTTP/1.1" 200 OK
+INFO:cost_guard:Usage: user=student req=9 cost=$0.0002/1.0
+INFO:     127.0.0.1:51921 - "POST /ask HTTP/1.1" 200 OK
+INFO:cost_guard:Usage: user=student req=10 cost=$0.0002/1.0
+INFO:     127.0.0.1:51923 - "POST /ask HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51925 - "POST /ask HTTP/1.1" 429 Too Many Requests
+INFO:     127.0.0.1:51927 - "POST /ask HTTP/1.1" 429 Too Many Requests

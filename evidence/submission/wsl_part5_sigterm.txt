@@ -1,0 +1,16 @@
+Develop POSIX test: request still pending before SIGTERM; HTTP 200; subprocess returncode -15.
+INFO:     Started server process [5034]
+INFO:     Waiting for application startup.
+2026-11-26 02:24:18,382 INFO Agent starting up...
+2026-11-26 02:24:18,383 INFO Loading model and checking dependencies...
+2026-11-26 02:24:18,583 INFO ✅ Agent is ready!
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:18055 (Press CTRL+C to quit)
+INFO:     127.0.0.1:58566 - "GET /ready HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     127.0.0.1:58572 - "POST /ask?question=Long%20task HTTP/1.1" 200 OK
+INFO:     Waiting for application shutdown.
+2026-11-26 02:24:21,995 INFO 🔄 Graceful shutdown initiated...
+2026-11-26 02:24:21,996 INFO ✅ Shutdown complete
+INFO:     Application shutdown complete.
+INFO:     Finished server process [5034]

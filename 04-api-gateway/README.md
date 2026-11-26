@@ -42,8 +42,7 @@ production/
 ├── app.py              # Full security stack
 ├── auth.py             # JWT token logic
 ├── rate_limiter.py     # In-memory rate limiter
-├── cost_guard.py       # Token budget và spending alerts
-├── test_advanced.py    # Test suite
+├── cost_guard.py       # Hạn mức ngày của demo và hạn mức tháng trong Redis
 └── requirements.txt
 ```
 
@@ -51,8 +50,13 @@ production/
 ```bash
 cd production
 pip install -r requirements.txt
-python app.py
 
+# Dùng Redis cục bộ cho hạn mức 10 USD/tháng theo tài khoản JWT.
+docker run -d --rm --name lab14-part4-redis -p 127.0.0.1:16379:6379 redis:7-alpine
+REDIS_URL=redis://127.0.0.1:16379/0 python -m uvicorn app:app --host 127.0.0.1 --port 8000
+```
+
+```bash
 # Lấy JWT token
 curl -X POST http://localhost:8000/auth/token \
      -H "Content-Type: application/json" \
@@ -79,6 +83,9 @@ for i in $(seq 1 20); do
        -d '{"question": "what is docker?"}' \
        | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('answer','')[:60] if 'answer' in d else f'❌ {d.get(\"detail\",d)}')"
 done
+
+# Dừng Uvicorn bằng Ctrl+C trong terminal đã chạy app, rồi tắt Redis.
+docker stop lab14-part4-redis
 ```
 
 ---

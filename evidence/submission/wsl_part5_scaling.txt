@@ -1,0 +1,93 @@
+time="2026-11-26T02:45:07Z" level=warning msg="./05-scaling-reliability/production/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+NAME                       IMAGE                    COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+k5-day14-scaling-agent-1   k5-day14-scaling-agent   "python -m uvicorn a…"   agent     17 seconds ago   Up 6 seconds (healthy)    8000/tcp
+k5-day14-scaling-agent-2   k5-day14-scaling-agent   "python -m uvicorn a…"   agent     17 seconds ago   Up 6 seconds (healthy)    8000/tcp
+k5-day14-scaling-agent-3   k5-day14-scaling-agent   "python -m uvicorn a…"   agent     17 seconds ago   Up 6 seconds (healthy)    8000/tcp
+k5-day14-scaling-nginx-1   nginx:alpine             "/docker-entrypoint.…"   nginx     17 seconds ago   Up 5 seconds              127.0.0.1:18005->80/tcp
+k5-day14-scaling-redis-1   redis:7-alpine           "docker-entrypoint.s…"   redis     17 seconds ago   Up 17 seconds (healthy)   6379/tcp
+{"ready":true,"instance":"instance-1d461e"}
+============================================================
+Stateless Scaling Demo
+============================================================
+
+Session ID: 2aea4d6f-131b-4162-ae67-6900294d221e
+
+Request 1: [instance-394a65]
+  Q: What is Docker?
+  A: Container là cách đóng gói app để chạy ở mọi nơi. Build once, run anywhere!...
+
+Request 2: [instance-c534c8]
+  Q: Why do we need containers?
+  A: Tôi là AI agent được deploy lên cloud. Câu hỏi của bạn đã được nhận....
+
+Request 3: [instance-1d461e]
+  Q: What is Kubernetes?
+  A: Đây là câu trả lời từ AI agent (mock). Trong production, đây sẽ là response từ O...
+
+Request 4: [instance-394a65]
+  Q: How does load balancing work?
+  A: Đây là câu trả lời từ AI agent (mock). Trong production, đây sẽ là response từ O...
+
+Request 5: [instance-c534c8]
+  Q: What is Redis used for?
+  A: Tôi là AI agent được deploy lên cloud. Câu hỏi của bạn đã được nhận....
+
+------------------------------------------------------------
+Total requests: 5
+Instances used: {'instance-c534c8', 'instance-1d461e', 'instance-394a65'}
+✅ All requests served despite different instances!
+
+--- Conversation History ---
+Total messages: 10
+  [user]: What is Docker?...
+  [assistant]: Container là cách đóng gói app để chạy ở mọi nơi. Build once...
+  [user]: Why do we need containers?...
+  [assistant]: Tôi là AI agent được deploy lên cloud. Câu hỏi của bạn đã đư...
+  [user]: What is Kubernetes?...
+  [assistant]: Đây là câu trả lời từ AI agent (mock). Trong production, đây...
+  [user]: How does load balancing work?...
+  [assistant]: Đây là câu trả lời từ AI agent (mock). Trong production, đây...
+  [user]: What is Redis used for?...
+  [assistant]: Tôi là AI agent được deploy lên cloud. Câu hỏi của bạn đã đư...
+
+✅ Session history preserved across all instances via Redis!
+Seed Redis session: 6d78bcf6-819d-4cc1-88fd-e14cb08d0b78 replica: instance-394a65
+time="2026-11-26T02:45:08Z" level=warning msg="./05-scaling-reliability/production/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+c0369f77a288ec811b19f2f3f1e44bc5f7328f75ac86936450827a8c6ae70b78
+Stopped replica process exit code: 0
+INFO:     Waiting for application shutdown.
+INFO:app:Instance instance-1d461e shutting down
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1]
+{"session_id":"6d78bcf6-819d-4cc1-88fd-e14cb08d0b78","question":"Still available?","answer":"Agent đang hoạt động tốt! (mock response) Hỏi thêm câu hỏi đi nhé.","turn":2,"served_by":"instance-c534c8","storage":"redis"}
+History after replica stopped: 4 messages
+time="2026-11-26T02:46:09Z" level=warning msg="./05-scaling-reliability/production/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container k5-day14-scaling-redis-1 Waiting 
+ Container k5-day14-scaling-redis-1 Healthy 
+ Container k5-day14-scaling-agent-1 Starting 
+ Container k5-day14-scaling-agent-1 Started 
+time="2026-11-26T02:46:10Z" level=warning msg="./05-scaling-reliability/production/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+Restored running replicas: 3
+time="2026-11-26T02:46:10Z" level=warning msg="./05-scaling-reliability/production/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Container k5-day14-scaling-nginx-1 Stopping 
+ Container k5-day14-scaling-nginx-1 Stopped 
+ Container k5-day14-scaling-nginx-1 Removing 
+ Container k5-day14-scaling-nginx-1 Removed 
+ Container k5-day14-scaling-agent-1 Stopping 
+ Container k5-day14-scaling-agent-3 Stopping 
+ Container k5-day14-scaling-agent-2 Stopping 
+ Container k5-day14-scaling-agent-2 Stopped 
+ Container k5-day14-scaling-agent-2 Removing 
+ Container k5-day14-scaling-agent-2 Removed 
+ Container k5-day14-scaling-agent-3 Stopped 
+ Container k5-day14-scaling-agent-3 Removing 
+ Container k5-day14-scaling-agent-3 Removed 
+ Container k5-day14-scaling-agent-1 Stopped 
+ Container k5-day14-scaling-agent-1 Removing 
+ Container k5-day14-scaling-agent-1 Removed 
+ Container k5-day14-scaling-redis-1 Stopping 
+ Container k5-day14-scaling-redis-1 Stopped 
+ Container k5-day14-scaling-redis-1 Removing 
+ Container k5-day14-scaling-redis-1 Removed 
+ Network k5-day14-scaling_agent_net Removing 
+ Network k5-day14-scaling_agent_net Removed 

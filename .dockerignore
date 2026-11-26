@@ -26,7 +26,10 @@ Thumbs.db
 # Secrets — QUAN TRỌNG: không bao giờ đưa .env vào image
 .env
 .env.*
+**/.env
+**/.env.*
 !.env.example
+!**/.env.example
 
 # Git
 .git/
