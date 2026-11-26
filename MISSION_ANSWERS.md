@@ -119,7 +119,7 @@ flowchart LR
 
 ---
 
-## Part 3: Cloud Deployment (CP6 — Phần làm được local)
+## Part 3: Cloud Deployment (CP6)
 
 ### So sánh `railway.toml` và `render.yaml`
 
@@ -145,8 +145,8 @@ Trong [cloudbuild.yaml](03-cloud-deployment/production-cloud-run/cloudbuild.yaml
 
 ### Trạng thái triển khai Agent Part 6
 
-- **Trạng thái local:** Đã hoàn thiện `06-lab-complete/railway.toml`, `06-lab-complete/render.yaml` và tài liệu hướng dẫn trong [DEPLOYMENT.md](DEPLOYMENT.md) (check tĩnh tiêu chí 12 đạt `✅`).
-- **CP6:** URL public, bốn kết quả HTTP và ba ảnh cloud đang chờ triển khai thật. Xem [DEPLOYMENT.md](DEPLOYMENT.md).
+- **Exercise 3.2:** Agent Part 6 chạy trên Render, dùng Key Value làm Redis. URL public là `https://k5-day14-production-agent-d13t.onrender.com`. [Kiểm tra /health](https://k5-day14-production-agent-d13t.onrender.com/health)
+- **Kết quả CP6:** `GET /health` → `200`, `GET /ready` → `200`, `POST /ask` thiếu key → `401`, `POST /ask` có key hợp lệ → `200`. [Cấu hình và minh chứng](DEPLOYMENT.md)
 
 ---
 
