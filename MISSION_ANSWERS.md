@@ -305,4 +305,11 @@ Lệnh `python -m pytest -q` thu thập 18 test từ `tests/`. `pytest.ini` trá
 
 ## AI log
 
-AI hỗ trợ đối chiếu rubric, rà soát và sửa mã, chạy kiểm thử và biên tập báo cáo. Kết quả được đối chiếu với grader, JSON/CSV gốc và số đo từ các stack chạy thật.
+| Tôi hỏi AI về | AI hỗ trợ | Phần thực hiện và kiểm tra |
+| --- | --- | --- |
+| Cách trả lời các bài tập Part 1–5 | Đọc mã mẫu, giải thích hành vi của từng bản, soạn và chỉnh câu trả lời theo kết quả chạy. | AI đối chiếu câu trả lời với mã, mã HTTP và kết quả Docker được dẫn trong từng phần. |
+| Cách hoàn thiện agent Part 6 | Trực tiếp sửa mã xác thực API key, giới hạn tải và ngân sách bằng Redis, cùng cấu hình Docker và test. | AI chạy `pytest` và kiểm tra agent với Redis thật. [Kết quả pytest](evidence/submission/wsl_part6_pytest.txt) · [Kiểm tra Compose](evidence/submission/wsl_part6_compose.txt) |
+| Rà lỗi Part 6 và kiểm tra theo rubric | Sửa các lỗi về khóa kỳ ngân sách, log ngoại lệ và thu thập test. | Tôi cài WSL 2, bật Docker Integration cho Ubuntu và chạy `hello-world`. AI chạy lại grader với Docker và Redis, đạt 12/12 tiêu chí. [Kết quả grader](evidence/submission/wsl_part6_checker_full.txt) |
+| Cách triển khai và kiểm tra CP6 trên Render | Hướng dẫn dùng Blueprint, thiết lập Redis và chạy bốn phép thử HTTP trong PowerShell. | Tôi tạo dịch vụ trên Render và tự chạy bốn phép thử, nhận `200 / 200 / 401 / 200`. [Kết quả kiểm tra](screenshots/test.png) |
+| Cách đo và trình bày kết quả Part 7 | Bổ sung metric, sửa dữ liệu kiến thức của agent mock, chạy benchmark và eval, rồi đối chiếu báo cáo với JSON và CSV gốc. | Tôi mở Grafana và Prometheus để xem stack trên máy. Các phép đo tự động và ảnh minh chứng được dẫn trong [báo cáo benchmark](BENCHMARK_REPORT.md). |
+| Rà lại nội dung trước khi nộp | Phát hiện và sửa trực tiếp câu mô tả `server_tokens off` ở Part 2. | AI đối chiếu cấu hình Nginx với phản hồi HTTP có `Server: nginx`. [Kết quả kiểm tra Docker](evidence/submission/wsl_part2_docker.txt) |
